@@ -43,6 +43,8 @@ defmodule Serial.Writer do
         |> Stream.chunk_every(state.writer_buf)
         |> Stream.into(File.stream!(state.writer_output, [:append, :utf8]))
         |> Stream.run
+        
+        StringIO.close(stream)
     end
 
     {:noreply, state}
