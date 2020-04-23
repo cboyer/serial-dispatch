@@ -12,6 +12,9 @@ defmodule Serial.Listener do
     state = %{
       watch_sleep: Enum.at(args, 0),
       device: Enum.at(args, 1),
+      speed: Enum.at(args, 2),
+      line_separator: Enum.at(args, 3),
+      print_data: Enum.at(args, 4),
       serial_pid: nil
     }
 
@@ -65,10 +68,10 @@ defmodule Serial.Listener do
         Logger.info("[#{__MODULE__}] Device found #{device_path} --> #{inspect(device)}")
 
         Circuits.UART.configure(state.serial_pid,
-          framing: {Circuits.UART.Framing.Line, separator: "\r\n"}
+          framing: {Circuits.UART.Framing.Line, separator: state.line_separator}
         )
 
-        case Circuits.UART.open(state.serial_pid, device_path, speed: 115_200, active: true) do
+        case Circuits.UART.open(state.serial_pid, device_path, speed: state.speed, active: true) do
           :ok ->
             Logger.info("[#{__MODULE__}] Device opened, reading")
 
@@ -140,8 +143,13 @@ defmodule Serial.Listener do
         Logger.warn("[#{__MODULE__}] Device disconnected")
         GenServer.cast(__MODULE__, :device_watch)
 
+      {:partial, msg} ->
+        Logger.warn("[#{__MODULE__}] Received partial: #{inspect(msg)}")
+
       data ->
-        Logger.debug(data)
+        if (state.print_data == 1) do
+            Logger.debug(data)
+        end
         Process.whereis(Serial.Writer) |> send(data)
         Process.whereis(Serial.TCPwriter) |> send(data)
     end

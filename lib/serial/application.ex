@@ -6,9 +6,16 @@ defmodule Serial.Application do
   use Supervisor
   require Logger
 
-  @writer_output "/home/cyril/obd2.csv"
-  @watch_sleep 500
-  @tcp_port 8080
+  # Configuration parameters
+  @writer_output "/tmp/obd2.csv"    # Write data to file (append)
+  @writer_buf 10                    # Wait for 10 lines of data before writing to file
+  @watch_sleep 500                  # Monitor device availability every 500ms if disconnected
+  @tcp_port 8080                    # Listen for TCP connections on port 8080
+  @speed 115200                     # Serial speed
+  @line_separator "\n"              # End of line character
+  @print_data 1                     # Print received data in terminal
+  
+  # Device to look for
   @device %{description: "Arduino Due", manufacturer: "Arduino LLC", product_id: 62, vendor_id: 9025} #Macchina M2
   #@device %{product_id: 2010, vendor_id: 32903} #Bluetooth connection through rfcomm
   #@device %{manufacturer: "Arduino (www.arduino.cc)", product_id: 67, serial_number: "9543335363635141E0F0", vendor_id: 9025} #Arduino Uno
@@ -23,9 +30,9 @@ defmodule Serial.Application do
     Logger.info("[#{__MODULE__}] Starting subprocesses...")
 
     children = [
-      {Serial.Writer, [@writer_output]},
+      {Serial.Writer, [@writer_output, @writer_buf]},
       {Serial.TCPwriter, [@tcp_port]},
-      {Serial.Listener, [@watch_sleep, @device]}
+      {Serial.Listener, [@watch_sleep, @device, @speed, @line_separator, @print_data]}
     ]
 
     opts = [strategy: :one_for_one, name: Serial.Supervisor]
