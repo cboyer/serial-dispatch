@@ -64,7 +64,15 @@ defmodule Serial.TCPwriter do
 
       msg ->
         Registry.dispatch(Registry.TCPclients, "Serial", fn entries ->
-          for {_pid, client} <- entries, do: :gen_tcp.send(client, msg)
+          for {_pid, client} <- entries do
+            case :gen_tcp.send(client, msg <> "\n") do
+              {:error, :closed} ->
+                  Logger.info("[#{__MODULE__}] TCP client disconnected: #{inspect(client)}")
+                  Registry.unregister_match(Registry.TCPclients, "Serial", client)
+              _ ->
+                  :ok
+            end
+          end
         end)
     end
 
