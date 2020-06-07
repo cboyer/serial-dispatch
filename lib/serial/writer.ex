@@ -10,8 +10,8 @@ defmodule Serial.Writer do
   """
   def start_link(args) do
     state = %{
-      writer_output: Enum.at(args, 0),
-      writer_buf: Enum.at(args, 1)
+      writer_output: args |> Enum.at(0) |> File.stream!([:append, :utf8]),
+      writer_buf:    args |> Enum.at(1)
     }
 
     {:ok, supervisor_pid} = GenServer.start_link(__MODULE__, state, name: __MODULE__)
@@ -41,9 +41,9 @@ defmodule Serial.Writer do
         stream
         |> IO.binstream(:line)
         |> Stream.chunk_every(state.writer_buf)
-        |> Stream.into(File.stream!(state.writer_output, [:append, :utf8]))
+        |> Stream.into(state.writer_output)
         |> Stream.run
-        
+
         StringIO.close(stream)
     end
 

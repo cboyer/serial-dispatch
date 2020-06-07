@@ -5,7 +5,7 @@ defmodule Serial.MixProject do
     [
       app: :serial,
       version: "1.0.0",
-      elixir: "~> 1.9",
+      elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       releases: [
@@ -29,7 +29,7 @@ defmodule Serial.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:circuits_uart, "~> 1.3"}
+      {:circuits_uart, "~> 1.4.2"}
     ]
   end
 end
