@@ -10,7 +10,7 @@ defmodule Serial.Writer do
   """
   def start_link(args) do
     state = %{
-      writer_output: args |> Enum.at(0) |> File.stream!([:append, :utf8]),
+      writer_output: args |> Enum.at(0) |> File.open!([:append, :binary]),
       writer_buf:    args |> Enum.at(1)
     }
 
@@ -36,15 +36,8 @@ defmodule Serial.Writer do
         Logger.info("[#{__MODULE__}] Received partial: #{inspect(msg)}")
 
       msg ->
-        {:ok, stream} = StringIO.open(msg <> "\n")
-
-        stream
-        |> IO.binstream(:line)
-        |> Stream.chunk_every(state.writer_buf)
-        |> Stream.into(state.writer_output)
-        |> Stream.run
-
-        StringIO.close(stream)
+        state.writer_output
+        |> IO.write(msg <> "\n")
     end
 
     {:noreply, state}
