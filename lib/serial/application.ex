@@ -11,6 +11,7 @@ defmodule Serial.Application do
   @writer_buf 10                    # Wait for 10 lines of data before writing to file
   @watch_sleep 500                  # Monitor device availability every 500ms if disconnected
   @timeout 1000                     # :timeout if no data is received after X ms
+  @listen_addr {127,0,0,1}          # Listen fro TCP connections on IP address
   @tcp_port 8080                    # Listen for TCP connections on port 8080
   @speed 115200                     # Serial speed
   @line_separator "\n"              # End of line character
@@ -32,7 +33,7 @@ defmodule Serial.Application do
 
     children = [
       {Serial.Writer, [@writer_output, @writer_buf]},
-      {Serial.TCPwriter, [@tcp_port]},
+      {Serial.TcpServer, [@listen_addr, @tcp_port]},
       {Serial.Listener, [@watch_sleep, @timeout, @device, @speed, @line_separator, @print_data]}
     ]
 

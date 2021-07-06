@@ -109,12 +109,18 @@ defmodule Serial.Listener do
                 data
                 |> tap(fn frames -> if state.print_data, do: IO.puts "Received: " <> inspect(frames, base: :hex) end)
                 |> tap(fn frames -> Process.whereis(Serial.Writer) |> send(frames)
-                                    Process.whereis(Serial.TCPwriter) |> send(frames) end)
+                                    Process.whereis(Serial.TcpServer) |> send(frames) end)
         end
 
         {:noreply, state, state.timeout}
     end
 
+
+    #Handles message from TCP client: relay them through serial
+    def handle_info({:tcp, message}, state) do
+        Circuits.UART.write(state.serial_pid, message)
+        {:noreply, state}
+    end
 
     #Handles timeout
     def handle_info(:timeout, state) do
