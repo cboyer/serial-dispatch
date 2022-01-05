@@ -10,14 +10,14 @@ defmodule Serial.Listener do
     @doc """
     Default start_link function: args come from parent (Supervisor)
     """
-    def start_link(args) do
+    def start_link(_args) do
         state = %{
-            watch_sleep: Enum.at(args, 0),
-            timeout: Enum.at(args, 1),
-            device: Enum.at(args, 2),
-            speed: Enum.at(args, 3),
-            line_separator: Enum.at(args, 4),
-            print_data: Enum.at(args, 5),
+            watch_sleep: Application.fetch_env!(:serial, :watch_sleep),
+            timeout: Application.fetch_env!(:serial, :timeout),
+            device: Application.fetch_env!(:serial, :device),
+            speed: Application.fetch_env!(:serial, :speed),
+            line_separator: Application.fetch_env!(:serial, :line_separator),
+            print_data: Application.fetch_env!(:serial, :print_data),
             serial_pid: nil
         }
 

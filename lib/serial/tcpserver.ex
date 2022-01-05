@@ -10,10 +10,10 @@ defmodule Serial.TcpServer do
     @doc """
     Default start_link function: args come from parent (Supervisor)
     """
-    def start_link(args) do
+    def start_link(_args) do
         state = %{
-            addr: Enum.at(args, 0),
-            port: Enum.at(args, 1),
+            addr: Application.fetch_env!(:serial, :listen_addr),
+            port: Application.fetch_env!(:serial, :listen_port),
             clients: []
         }
 

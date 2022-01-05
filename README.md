@@ -8,7 +8,7 @@ Elixir/OTP application to read data from serial device (initially written for OB
 git clone https://github.com/cboyer/serial-dispatch
 ```
 
-Configure your device in `application.ex` with `@device`.
+Configure your device in `config/config.exs` with `device:`.
 You can list all connected devices with `Circuits.UART.enumerate` once compiled and change it later.
 
 ```Elixir

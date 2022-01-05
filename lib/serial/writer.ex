@@ -10,9 +10,9 @@ defmodule Serial.Writer do
     @doc """
     Default start_link function: args come from parent (Supervisor)
     """
-    def start_link(args) do
+    def start_link(_args) do
         state = %{
-            writer_output: args |> Enum.at(0) |> File.open!([:append, :binary])
+            output_file: Application.fetch_env!(:serial, :output_file) |> File.open!([:append, :binary])
         }
 
         {:ok, supervisor_pid} = GenServer.start_link(__MODULE__, state, name: __MODULE__)
@@ -39,7 +39,7 @@ defmodule Serial.Writer do
                 Logger.info("[#{__MODULE__}] Received partial: #{inspect(msg)}")
 
             msg ->
-                spawn(fn -> state.writer_output
+                spawn(fn -> state.output_file
                             |> IO.write(msg <> "\n")
                 end)
         end
