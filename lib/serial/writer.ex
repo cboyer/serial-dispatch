@@ -12,7 +12,8 @@ defmodule Serial.Writer do
     """
     def start_link(_args) do
         state = %{
-            output_file: Application.fetch_env!(:serial, :output_file) |> File.open!([:append, :binary])
+            output_file: Application.fetch_env!(:serial, :output_file) |> File.open!([:append, :binary]),
+	    line_separator: Application.fetch_env!(:serial, :line_separator)
         }
 
         {:ok, supervisor_pid} = GenServer.start_link(__MODULE__, state, name: __MODULE__)
@@ -40,7 +41,7 @@ defmodule Serial.Writer do
 
             msg ->
                 spawn(fn -> state.output_file
-                            |> IO.write(msg <> "\n")
+                            |> IO.binwrite(msg <> "\n")
                 end)
         end
 
