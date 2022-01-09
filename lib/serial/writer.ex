@@ -40,9 +40,8 @@ defmodule Serial.Writer do
                 Logger.info("[#{__MODULE__}] Received partial: #{inspect(msg)}")
 
             msg ->
-                spawn(fn -> state.output_file
-                            |> IO.binwrite(msg <> "\n")
-                end)
+                state.output_file
+                |> IO.binwrite(msg <> state.line_separator)
         end
 
         {:noreply, state}
