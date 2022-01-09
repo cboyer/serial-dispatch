@@ -107,7 +107,7 @@ defmodule Serial.Listener do
 
             data ->
                 data
-                |> tap(fn frames -> if state.print_data, do: IO.puts "Received: " <> inspect(frames, base: :hex) end)
+                |> tap(fn frames -> if state.print_data, do: IO.puts "Read: " <> inspect(frames, base: :hex) end)
                 |> tap(fn frames -> GenServer.cast(Serial.Writer, {:write, frames})
                                     GenServer.cast(Serial.TcpServer, {:write, frames})
                                     end)
@@ -124,6 +124,7 @@ defmodule Serial.Listener do
 
     #Handles messages to send through serial
     def handle_cast({:write, message}, state) do
+        if state.print_data, do: IO.puts "Write: " <> inspect(message, base: :hex)
         Circuits.UART.write(state.serial_pid, message)
         {:noreply, state}
     end
