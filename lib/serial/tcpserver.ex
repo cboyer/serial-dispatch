@@ -55,7 +55,7 @@ defmodule Serial.TcpServer do
         case :gen_tcp.recv(socket, 0) do
             {:ok, line} ->
                 #IO.inspect line, label: "Incoming packet from " <> inspect(socket)
-                Process.whereis(Serial.Listener) |> send({:tcp, line})
+                GenServer.cast(Serial.Listener, {:write, line})
                 recv_loop(socket)
 
             {:error, :closed} -> GenServer.cast(__MODULE__, {:leave, socket})
@@ -77,10 +77,8 @@ defmodule Serial.TcpServer do
     end
 
 
-    @doc """
-    Broadcast messages from Serial.Listener to all TCP clients
-    """
-    def handle_info(data, state) do
+    # Broadcast messages from Serial.Listener to all TCP clients
+    def handle_cast({:write, data}, state) do
         #IO.inspect state.clients, label: "Forwarding serial message to TCP clients"
         state.clients
         |> Task.async_stream(fn client -> :gen_tcp.send(client, data) end)

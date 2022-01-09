@@ -34,7 +34,7 @@ defmodule Serial.Writer do
     @doc """
     Message handler
     """
-    def handle_info(data, state) do
+    def handle_cast({:write, data}, state) do
         case data do
             {:partial, msg} -> 
                 Logger.info("[#{__MODULE__}] Received partial: #{inspect(msg)}")
