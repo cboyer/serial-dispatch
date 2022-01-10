@@ -36,12 +36,9 @@ defmodule Serial.Writer do
     """
     def handle_cast({:write, data}, state) do
         case data do
-            {:partial, msg} -> 
-                Logger.info("[#{__MODULE__}] Received partial: #{inspect(msg)}")
+            {:partial, msg} -> Logger.info("[#{__MODULE__}] Received partial: #{inspect(msg)}")
 
-            msg ->
-                state.output_file
-                |> IO.binwrite(msg <> state.line_separator)
+            msg -> IO.binwrite(state.output_file, msg <> state.line_separator)
         end
 
         {:noreply, state}

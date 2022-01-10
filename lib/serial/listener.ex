@@ -106,11 +106,9 @@ defmodule Serial.Listener do
                 Circuits.UART.flush(state.serial_pid, :receive)
 
             data ->
-                data
-                |> tap(fn frames -> if state.print_data, do: IO.puts "Read: " <> inspect(frames, base: :hex) end)
-                |> tap(fn frames -> GenServer.cast(Serial.Writer, {:write, frames})
-                                    GenServer.cast(Serial.TcpServer, {:write, frames})
-                                    end)
+                if state.print_data, do: IO.puts "Read: " <> inspect(data, base: :hex)
+                GenServer.cast(Serial.Writer, {:write, data})
+                GenServer.cast(Serial.TcpServer, {:write, data})
         end
 
         {:noreply, state, state.timeout}
