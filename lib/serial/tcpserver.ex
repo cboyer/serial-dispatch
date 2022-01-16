@@ -38,12 +38,10 @@ defmodule Serial.TcpServer do
     Accept TCP connections
     """
     def accept_loop(socket) do
-        with {:ok, client_socket} <- :gen_tcp.accept(socket) do
-            recv_pid = spawn(__MODULE__, :recv_loop, [client_socket])
-            :gen_tcp.controlling_process(client_socket, recv_pid)
-            GenServer.cast(__MODULE__, {:join, client_socket})
-        end
-
+        {:ok, client_socket} = :gen_tcp.accept(socket)
+        {:ok, recv_pid} = Task.start(fn -> recv_loop(client_socket) end)
+        :ok = :gen_tcp.controlling_process(client_socket, recv_pid)
+        GenServer.cast(__MODULE__, {:join, client_socket})
         accept_loop(socket)
     end
 
